@@ -17,12 +17,13 @@ hunter = hunter[(hunter.Id.str.replace('"', '').isin(['6917529113067904764'])) |
 # hunter = hunter[(hunter.Name == 'St0mp-EE5') | ((hunter.Type != 'Leg Armor') & (hunter['Tier'] == 'Legendary'))]
 hunter = hunter[hunter['Armor2.0']]
 hunter = hunter[(hunter['Total (Base)'] >= 60) & (hunter['Type'] != 'Hunter Cloak')]
-
-
 # Ensure all gear is masterwork
 unmasterworked_gear = hunter[hunter['Masterwork Tier'] < 10.0]['Id']
 _rows = hunter['Id'].isin(unmasterworked_gear)
 hunter.loc[_rows, stat_names] = hunter.loc[_rows, stat_names].apply(lambda x: x + 2)
+hunter = hunter[['Name', 'Id', 'Total', 'Mobility (Base)', 'Resilience (Base)', 'Recovery (Base)',
+                 'Discipline (Base)', 'Intellect (Base)', 'Strength (Base)',
+                 'Total (Base)']]
 
 groups = hunter['Id'].groupby(df.Type)
 item_id = groups.apply(list)
@@ -45,19 +46,19 @@ print(f'Number of possible combinations: {cnt:,}')
 # i = 0
 # for loadout in tqdm(armor_loadouts, total=cnt):
 #     hunter.loc[hunter.Id.isin(loadout), 'group'] = int(i)
-    # break
+# break
 
 
-
-
-_totals = []
+_totals = [[]]*cnt
+i = 0
 for loadout in tqdm(armor_loadouts, total=cnt):
     _stat_totals = list(loadout) + get_stats(loadout)
     # print(_stat_totals)
     # if _stat_totals['Mobility (Base)'] >= 60
     if _stat_totals[7] >= 70:
-        _totals.append(_stat_totals)
-    break
+        _totals[i] = _stat_totals
+    i += 1
+    # break
 
 totals = pd.DataFrame(_totals, columns=['Chest', 'Gauntlets', 'Helmet', 'Legs',
                                         'Mobility (Base)', 'Resilience (Base)', 'Recovery (Base)',
